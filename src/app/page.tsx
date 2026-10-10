@@ -26,14 +26,34 @@ export default function HomePage() {
   const infoSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Asegurar que al hacer F5 / recargar la página siempre comience en el inicio
+    // Asegurar que al hacer F5 / recargar la página siempre comience en el inicio (0, 0)
     if (typeof window !== 'undefined') {
       if ('scrollRestoration' in window.history) {
         window.history.scrollRestoration = 'manual';
       }
       window.scrollTo(0, 0);
-    }
 
+      // Timeout y requestAnimationFrame para neutralizar cualquier restauración asíncrona del navegador o de ScrollTrigger
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+      });
+      const t = setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 50);
+
+      const handleBeforeUnload = () => {
+        window.scrollTo(0, 0);
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
+      return () => {
+        clearTimeout(t);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
     // Detección de prefers-reduced-motion
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setIsReducedMotion(mediaQuery.matches);
@@ -60,14 +80,14 @@ export default function HomePage() {
 
     if (!pinEl || !containerEl) return;
 
-    // Calcular altura del Hero como 3 * (altura Escena VIII + Footer)
-    // De modo que el Hero sea ≈ 75% del scroll total (requisito: entre 70% y 80%)
+    // Calcular altura del Hero como 3.6 * (altura Escena VIII + Footer)
+    // De modo que el Hero sea ≈ 78% del scroll total (admisible entre 70% y 80%)
+    // Al alargar el recorrido y subir el scrub a 1.2, cada movimiento de rueda o swipe avanza más lentamente y con mayor suavidad
     const calculateHeroScrollDistance = () => {
       const infoHeight = infoEl ? infoEl.offsetHeight : 1200;
       const footerHeight = 180;
       const nonHeroHeight = infoHeight + footerHeight;
-      // 3 * nonHeroHeight hace que hero / (hero + nonHero) = 3/4 = 75%
-      return Math.round(nonHeroHeight * 3.0);
+      return Math.round(nonHeroHeight * 3.6);
     };
 
     const heroScrollDistance = calculateHeroScrollDistance();
@@ -80,7 +100,7 @@ export default function HomePage() {
         end: `+=${heroScrollDistance}`,
         pin: pinEl,
         pinSpacing: true,
-        scrub: 0.6,
+        scrub: 1.2,
         onUpdate: (self) => {
           const p = self.progress;
           setHeroProgreso(p);
@@ -135,7 +155,7 @@ export default function HomePage() {
   const handleJumpToProgress = (targetP: number) => {
     if (!containerRef.current) return;
     const infoHeight = infoSectionRef.current ? infoSectionRef.current.offsetHeight : 1200;
-    const heroScrollDistance = Math.round((infoHeight + 180) * 3.0);
+    const heroScrollDistance = Math.round((infoHeight + 180) * 3.6);
     const scrollTarget = containerRef.current.offsetTop + targetP * heroScrollDistance;
     window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
   };
