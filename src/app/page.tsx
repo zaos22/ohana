@@ -26,6 +26,14 @@ export default function HomePage() {
   const infoSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    // Asegurar que al hacer F5 / recargar la página siempre comience en el inicio
+    if (typeof window !== 'undefined') {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+    }
+
     // Detección de prefers-reduced-motion
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setIsReducedMotion(mediaQuery.matches);

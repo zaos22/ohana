@@ -98,7 +98,8 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${playfair.variable} ${ebGaramond.variable} ${jakarta.variable} ${caveat.variable} dark antialiased scroll-smooth`}
+      suppressHydrationWarning
+      className={`${playfair.variable} ${ebGaramond.variable} ${jakarta.variable} ${caveat.variable} dark antialiased`}
     >
       <head>
         <script
@@ -106,7 +107,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-black text-[var(--color-crema)] font-sans min-h-screen selection:bg-[var(--color-zafiro)] selection:text-[var(--color-crema)]">
+      <body
+        suppressHydrationWarning
+        className="bg-black text-[var(--color-crema)] font-sans min-h-screen selection:bg-[var(--color-zafiro)] selection:text-[var(--color-crema)]"
+      >
         {children}
       </body>
     </html>

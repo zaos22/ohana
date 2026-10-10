@@ -74,7 +74,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
       {visibleEscena1 && opacidad1 > 0.01 && (
         <section
           id="escena-1"
-          className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 transition-all duration-300 pointer-events-auto"
+          className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 transition-all duration-300 pointer-events-none"
           style={{
             opacity: opacidad1,
             transform: `translateY(${(1 - opacidad1) * -30}px)`
@@ -118,7 +118,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
       {visibleEscena2 && opacidad2 > 0.01 && (
         <section
           id="escena-2"
-          className="absolute inset-0 flex flex-col items-center justify-end pb-20 sm:pb-24 px-6 text-center transition-all duration-300 pointer-events-auto"
+          className="absolute inset-0 flex flex-col items-center justify-end pb-20 sm:pb-24 px-6 text-center transition-all duration-300 pointer-events-none"
           style={{
             opacity: opacidad2,
             transform: `translateY(${(1 - opacidad2) * 20}px)`
@@ -137,7 +137,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
             </h2>
             <button
               onClick={() => onScrollToNext && onScrollToNext('escena-3')}
-              className="inline-flex items-center gap-2 text-[var(--text-subtle)] hover:text-white font-jakarta text-[11px] uppercase tracking-widest transition-colors pt-2 cursor-pointer"
+              className="inline-flex items-center gap-2 text-[var(--text-subtle)] hover:text-white font-jakarta text-[11px] uppercase tracking-widest transition-colors pt-2 cursor-pointer pointer-events-auto"
             >
               <span>{TEXTOS.escena2.botonContinuar}</span>
               <ArrowDown size={14} />
@@ -150,7 +150,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
       {visibleEscena5 && opacidad5 > 0.01 && (
         <section
           id="escena-5"
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-all duration-300 pointer-events-auto"
+          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-all duration-300 pointer-events-none"
           style={{
             opacity: opacidad5,
             transform: `translateY(${(1 - opacidad5) * 20}px)`
@@ -180,7 +180,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
       {visibleEscena6 && opacidad6 > 0.01 && (
         <section
           id="escena-6"
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-all duration-300 pointer-events-auto"
+          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-all duration-300 pointer-events-none"
           style={{
             opacity: opacidad6,
             transform: `translateY(${(1 - opacidad6) * 20}px)`
@@ -202,7 +202,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
             </p>
             <button
               onClick={() => onScrollToNext && onScrollToNext('escena-8')}
-              className="mt-4 px-6 py-3 rounded-full bg-[var(--color-zafiro)] hover:bg-[var(--color-zafiro-hover)] text-[var(--color-crema)] font-jakarta text-[12px] font-semibold uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer flex items-center gap-2"
+              className="mt-4 px-6 py-3 rounded-full bg-[var(--color-zafiro)] hover:bg-[var(--color-zafiro-hover)] text-[var(--color-crema)] font-jakarta text-[12px] font-semibold uppercase tracking-wider transition-all shadow-lg hover:scale-105 cursor-pointer pointer-events-auto flex items-center gap-2"
             >
               <span>{TEXTOS.escena6.botonContinuar}</span>
               <ArrowDown size={14} />
@@ -215,7 +215,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
       {visibleEscena7 && opacidad7 > 0.01 && (
         <section
           id="escena-7"
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-all duration-500 pointer-events-auto"
+          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-all duration-500 pointer-events-none"
           style={{
             opacity: opacidad7,
             transform: `translateY(${(1 - opacidad7) * 30}px)`
@@ -257,7 +257,7 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
 
             <button
               onClick={() => onScrollToNext && onScrollToNext('escena-8')}
-              className="mt-6 px-6 py-3 rounded-full bg-white/10 hover:bg-[var(--color-zafiro)] text-[var(--color-crema)] font-jakarta text-[11px] uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer"
+              className="mt-6 px-6 py-3 rounded-full bg-white/10 hover:bg-[var(--color-zafiro)] text-[var(--color-crema)] font-jakarta text-[11px] uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer pointer-events-auto"
             >
               <span>{TEXTOS.escena7.indicadorScroll}</span>
               <ArrowDown size={14} />
