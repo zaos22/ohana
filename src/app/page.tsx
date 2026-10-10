@@ -23,6 +23,8 @@ export default function HomePage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const pinSectionRef = useRef<HTMLDivElement | null>(null);
   const infoSectionRef = useRef<HTMLDivElement | null>(null);
+  const lastProgressRef = useRef<number>(-1);
+  const lastEscenaRef = useRef<number>(1);
 
   useEffect(() => {
     // Asegurar que al hacer F5 / recargar la página siempre comience en el inicio (0, 0)
@@ -102,23 +104,33 @@ export default function HomePage() {
         scrub: 1.2,
         onUpdate: (self) => {
           const p = self.progress;
-          setHeroProgreso(p);
+          // Evitar renderizados redundantes si el progreso apenas ha variado
+          if (Math.abs(p - lastProgressRef.current) > 0.0005) {
+            lastProgressRef.current = p;
+            setHeroProgreso(p);
+          }
 
-          // Sincronizar escena actual de cabecera (1 a 7 en el hero)
+          // Sincronizar escena actual de cabecera solo si cambia de escena
+          let nextEscena = 1;
           if (p < 0.08) {
-            setEscenaActual(1);
+            nextEscena = 1;
           } else if (p < 0.18) {
-            setEscenaActual(2);
+            nextEscena = 2;
           } else if (p < 0.28) {
-            setEscenaActual(3);
+            nextEscena = 3;
           } else if (p < 0.50) {
-            setEscenaActual(4);
+            nextEscena = 4;
           } else if (p < 0.68) {
-            setEscenaActual(5);
+            nextEscena = 5;
           } else if (p < 0.88) {
-            setEscenaActual(6);
+            nextEscena = 6;
           } else {
-            setEscenaActual(7);
+            nextEscena = 7;
+          }
+
+          if (nextEscena !== lastEscenaRef.current) {
+            lastEscenaRef.current = nextEscena;
+            setEscenaActual(nextEscena);
           }
         }
       });
