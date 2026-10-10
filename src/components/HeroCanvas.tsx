@@ -73,11 +73,13 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
       }
 
       const numStr = String(frameNum).padStart(4, '0');
-      const url = `/frames/${folder}/frame_${numStr}.webp`;
+      // Forzar recarga limpia del primer fotograma para evitar cache persistente del navegador
+      const cacheBust = frameNum === 1 ? `?v=portada_${Date.now().toString().slice(0, 8)}` : '';
+      const url = `/frames/${folder}/frame_${numStr}.webp${cacheBust}`;
 
       const promise = (async () => {
         try {
-          const res = await fetch(url, { cache: 'force-cache' });
+          const res = await fetch(url, { cache: frameNum === 1 ? 'no-cache' : 'force-cache' });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const blob = await res.blob();
           const bitmap = await createImageBitmap(blob);
@@ -151,6 +153,9 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
     []
   );
 
+  const progresoRef = useRef<number>(progreso);
+  progresoRef.current = progreso;
+
   // Draw current frame on canvas with 'cover' fitting
   const renderFrame = useCallback(
     async (frameNum: number) => {
@@ -195,7 +200,31 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
       const offsetX = (width - scaledW) / 2;
       const offsetY = (height - scaledH) / 2;
 
-      ctx.drawImage(bitmap, offsetX, offsetY, scaledW, scaledH);
+      const p = progresoRef.current;
+      // Transición suave muy breve y ligera (progreso entre 0.00 y 0.02)
+      if (p > 0.001 && p < 0.025 && frameNum > 1) {
+        const frame1Bitmap = bitmapCache.current.get(1);
+        if (frame1Bitmap) {
+          const portadaAlpha = Math.max(0, 1 - (p / 0.025));
+          ctx.drawImage(bitmap, offsetX, offsetY, scaledW, scaledH);
+
+          ctx.save();
+          ctx.globalAlpha = portadaAlpha;
+          const pImgW = frame1Bitmap.width;
+          const pImgH = frame1Bitmap.height;
+          const pScale = Math.max(width / pImgW, height / pImgH);
+          const pScaledW = pImgW * pScale;
+          const pScaledH = pImgH * pScale;
+          const pOffsetX = (width - pScaledW) / 2;
+          const pOffsetY = (height - pScaledH) / 2;
+          ctx.drawImage(frame1Bitmap, pOffsetX, pOffsetY, pScaledW, pScaledH);
+          ctx.restore();
+        } else {
+          ctx.drawImage(bitmap, offsetX, offsetY, scaledW, scaledH);
+        }
+      } else {
+        ctx.drawImage(bitmap, offsetX, offsetY, scaledW, scaledH);
+      }
       ctx.restore();
 
       lastRenderedFrame.current = frameNum;
@@ -218,7 +247,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
     const targetFrame = mapearProgresoAFotograma(progreso);
     const folder: 'desktop' | 'mobile' = isVertical ? 'mobile' : 'desktop';
 
-    if (targetFrame !== lastRenderedFrame.current) {
+    if (targetFrame !== lastRenderedFrame.current || progreso < 0.03) {
       const direction = targetFrame > lastRenderedFrame.current ? 1 : -1;
       renderFrame(targetFrame);
       preloadNeighborFrames(targetFrame, folder, direction);

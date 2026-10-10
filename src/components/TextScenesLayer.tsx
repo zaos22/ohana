@@ -81,8 +81,8 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
           }}
           aria-label="Escena I: Apertura"
         >
-          {/* Fondo negro puro inicial */}
-          <div className="absolute inset-0 bg-black/60 pointer-events-none -z-10" />
+          {/* Sutil viñeta para legibilidad sin oscurecer la foto de portada */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/40 pointer-events-none -z-10" />
 
           <div className="mb-8 flex items-center gap-3">
             <span className="w-8 h-[1px] bg-white/20" />

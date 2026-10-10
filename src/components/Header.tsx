@@ -98,10 +98,10 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
           </div>
 
           {/* Navegación y Acciones */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={() => scrollToSection('escena-8')}
-              className="font-jakarta text-[12px] font-semibold tracking-wider uppercase text-[var(--color-crema-dim)] hover:text-white px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
+              className="hidden sm:inline-flex font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase text-[var(--color-crema-dim)] hover:text-white px-2.5 sm:px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
             >
               Horario & Info
             </button>
@@ -112,20 +112,20 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-jakarta text-[12px] font-semibold tracking-wider uppercase bg-[var(--color-zafiro)] hover:bg-[var(--color-zafiro-hover)] text-[var(--color-crema)] px-4 py-2.5 rounded-lg transition-all shadow-[0_4px_20px_-2px_rgba(47,62,158,0.4)] flex items-center gap-2 hover:scale-[1.02]"
+                className="font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase bg-[var(--color-zafiro)] hover:bg-[var(--color-zafiro-hover)] text-[var(--color-crema)] px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all shadow-[0_4px_20px_-2px_rgba(47,62,158,0.4)] flex items-center gap-1.5 sm:gap-2 hover:scale-[1.02]"
                 id="header-reservar-btn"
               >
-                <MessageCircle size={15} />
+                <MessageCircle size={14} className="shrink-0" />
                 <span>Reservar</span>
               </a>
             ) : (
               <button
                 disabled
-                className="font-jakarta text-[12px] font-semibold tracking-wider uppercase bg-white/10 text-white/40 px-4 py-2.5 rounded-lg cursor-not-allowed flex items-center gap-2"
+                className="font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase bg-white/10 text-white/40 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg cursor-not-allowed flex items-center gap-1.5 sm:gap-2"
                 title="Número de WhatsApp no configurado"
                 id="header-reservar-btn-disabled"
               >
-                <MessageCircle size={15} />
+                <MessageCircle size={14} className="shrink-0" />
                 <span>Reservar</span>
               </button>
             )}
@@ -133,7 +133,7 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
             {/* Botón de Menú Móvil */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className="md:hidden p-2 text-[var(--color-crema)] hover:bg-white/10 rounded-lg transition-colors"
+              className="md:hidden p-1.5 sm:p-2 text-[var(--color-crema)] hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
               aria-label="Abrir menú de navegación"
             >
               <Menu size={22} />

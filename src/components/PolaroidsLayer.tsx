@@ -98,7 +98,7 @@ export const PolaroidsLayer: React.FC<PolaroidsLayerProps> = ({ progreso }) => {
         <div className="w-full max-w-[1440px] mx-auto h-full flex items-center justify-between px-6 lg:px-12 text-[var(--color-crema)]/70 text-xs sm:text-sm font-sans tracking-widest uppercase">
           <span className="flex items-center gap-2 font-medium">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            Ohana Showcase
+            Selección Ohana
           </span>
           <span className="font-mono text-[11px] text-[var(--color-crema)]/40 hidden sm:inline tracking-wider">
             ESPECTRO GASTRONÓMICO · BENICARLÓ
@@ -167,7 +167,7 @@ export const PolaroidsLayer: React.FC<PolaroidsLayerProps> = ({ progreso }) => {
                 }}
               >
                 <div
-                  className={`polaroid-frame p-3 pb-6 sm:p-4 sm:pb-8 rounded-[4px] w-[240px] sm:w-[300px] md:w-[350px] transition-shadow duration-300 ${
+                  className={`polaroid-frame p-2.5 pb-5 sm:p-4 sm:pb-8 rounded-[4px] w-[215px] xs:w-[240px] sm:w-[300px] md:w-[350px] transition-shadow duration-300 ${
                     focusStrength > 0.7
                       ? 'shadow-[0_25px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(255,248,240,0.15)] ring-1 ring-white/30'
                       : 'shadow-[0_15px_30px_rgba(0,0,0,0.6)]'
