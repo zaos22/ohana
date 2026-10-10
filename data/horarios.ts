@@ -157,12 +157,15 @@ export function obtenerEstadoEnVivo(fechaBase: Date = new Date()): EstadoEnVivo 
     if (infoSig.abierto && infoSig.tramos.length > 0) {
       const primerTramo = infoSig.tramos[0];
       let msg = '';
-      if (offset === 1) {
-        msg = `Abre mañana a las ${primerTramo.inicio}`;
+      const prefijo = diaInfo.abierto ? 'Cerrado por hoy' : 'Cerrado hoy';
+      if (offset === 1 && sigDia === 1) {
+        msg = `${prefijo} · Abre mañana lunes a las ${primerTramo.inicio}`;
+      } else if (offset === 1) {
+        msg = `${prefijo} · Abre mañana a las ${primerTramo.inicio}`;
       } else if (sigDia === 1) {
-        msg = `Abre el lunes a las ${primerTramo.inicio}`;
+        msg = `${prefijo} · Abre el lunes a las ${primerTramo.inicio}`;
       } else {
-        msg = `Abre el ${infoSig.nombre.toLowerCase()} a las ${primerTramo.inicio}`;
+        msg = `${prefijo} · Abre el ${infoSig.nombre.toLowerCase()} a las ${primerTramo.inicio}`;
       }
       return {
         abiertoAhora: false,

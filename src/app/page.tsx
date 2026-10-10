@@ -6,7 +6,6 @@ import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { Header } from '@/components/Header';
 import { HeroCanvas } from '@/components/HeroCanvas';
 import { PolaroidsLayer } from '@/components/PolaroidsLayer';
-import { MiniHeroesLayer } from '@/components/MiniHeroesLayer';
 import { TextScenesLayer } from '@/components/TextScenesLayer';
 import { InfoSection } from '@/components/InfoSection';
 import { Footer } from '@/components/Footer';
@@ -232,16 +231,10 @@ export default function HomePage() {
           {/* Capa 1: Canvas de fotogramas (fondo exacto) */}
           <HeroCanvas progreso={heroProgreso} />
 
-          {/* Capa 2: Polaroids (Escena III) */}
+          {/* Capa 2: Polaroids con Zoom In y Zoom Atrás secuencial (Escena III y IV) */}
           <PolaroidsLayer progreso={heroProgreso} />
 
-          {/* Capa 3: Mini Heroes Expandidos (Escena IV) */}
-          <MiniHeroesLayer
-            progreso={heroProgreso}
-            onJumpToProgress={handleJumpToProgress}
-          />
-
-          {/* Capa 4: Textos y Destello de Escenas I, II, V, VI y VII */}
+          {/* Capa 3: Textos y Destello de Escenas I, II, V, VI y VII */}
           <TextScenesLayer
             progreso={heroProgreso}
             onScrollToNext={handleScrollToNext}
