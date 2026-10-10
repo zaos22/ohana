@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+:root {
+  /* Paleta oficial de marca Ohana */
+  --color-black: #000000;
+  --color-espresso: #1E1713;
+  --color-espresso-dark: #17110E;
+  --color-espresso-surface: #241B16;
+  --color-crema: #F3EBDD;
+  --color-crema-muted: #D2C4BD;
+  --color-crema-dim: #CDC6B8;
+  --color-zafiro: #2F3E9E;
+  --color-zafiro-hover: #1E2B7B;
+  --color-zafiro-glow: rgba(47, 62, 158, 0.45);
+  --color-botanico: #7C8B6F;
+  --color-botanico-light: #A3B394;
+  --color-botanico-bg: rgba(124, 139, 111, 0.15);
+
+  /* Variables semánticas */
+  --bg-primary: #000000;
+  --bg-espresso: #1E1713;
+  --text-primary: #F3EBDD;
+  --text-muted: #CDC6B8;
+  --text-subtle: #9A8E89;
+  --accent-sapphire: #2F3E9E;
+  --accent-sage: #7C8B6F;
+  --border-subtle: rgba(243, 235, 221, 0.1);
+  --border-sage: rgba(124, 139, 111, 0.25);
+
+  /* Spacing Grid (8px base) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+  --space-12: 96px;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+}
+
+.font-garamond {
+  font-family: var(--font-garamond), 'EB Garamond', Garamond, serif;
+}
+
+.font-jakarta {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.font-caveat {
+  font-family: var(--font-caveat), 'Caveat', cursive;
+}
+
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-black);
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  /* Custom selection */
+  ::selection {
+    background-color: var(--color-zafiro);
+    color: var(--color-crema);
+  }
+}
+
+/* Polaroids styling */
+.polaroid-frame {
+  background-color: #FBF9F5;
+  color: #1E1713;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  will-change: transform;
+}
+
+.polaroid-frame:hover {
+  box-shadow: 0 28px 56px -6px rgba(0, 0, 0, 0.95), 0 0 30px -4px var(--color-zafiro-glow);
+}
+
+/* Glassmorphism utils */
+.glass-header {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.glass-card {
+  background: rgba(23, 17, 14, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Accessible reduced motion override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
