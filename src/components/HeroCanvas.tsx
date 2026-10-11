@@ -11,7 +11,6 @@ interface HeroCanvasProps {
 export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isVertical, setIsVertical] = useState<boolean>(false);
-  const [isLoadingChunk, setIsLoadingChunk] = useState<boolean>(false);
 
   // Sliding window memory cache: frameNum -> ImageBitmap
   const bitmapCache = useRef<Map<number, ImageBitmap>>(new Map());
@@ -168,9 +167,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
 
       let bitmap = bitmapCache.current.get(frameNum);
       if (!bitmap) {
-        setIsLoadingChunk(true);
         bitmap = (await loadFrameBitmap(frameNum, folder)) || undefined;
-        setIsLoadingChunk(false);
       }
 
       if (!bitmap || !canvas) return;
@@ -262,18 +259,6 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
         className="w-full h-full block object-cover"
         style={{ backgroundColor: '#000000' }}
       />
-      {/* Indicador discreto en zafiro si un tramo aún se está decodificando */}
-      {isLoadingChunk && (
-        <div
-          className="absolute bottom-6 right-6 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/70 border border-[var(--color-zafiro)]/40 backdrop-blur-md transition-opacity duration-300"
-          aria-hidden="true"
-        >
-          <span className="w-2 h-2 rounded-full bg-[var(--color-zafiro)] animate-ping" />
-          <span className="font-jakarta text-[10px] uppercase tracking-wider text-[var(--color-crema)]">
-            Cargando
-          </span>
-        </div>
-      )}
     </div>
   );
 };
