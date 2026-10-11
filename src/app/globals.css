@@ -81,6 +81,39 @@
   }
 }
 
+/* Ocultar barra superior y marcos inyectados por Google Translate */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-l4eHX-hSRLGd,
+.VIpgJd-yAWNEb-VIpgJd-fmcmS-sn54Q,
+iframe.goog-te-banner-frame,
+iframe[id=":1.container"],
+iframe[id=":2.container"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0px !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+.goog-tooltip,
+.goog-tooltip:hover,
+#goog-gt-tt * {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
 /* Polaroids styling */
 .polaroid-frame {
   background-color: #FBF9F5;

@@ -67,7 +67,7 @@ export const InfoSection: React.FC = () => {
         <div className="mb-12 border-b border-[var(--color-crema)]/10 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <span className="font-jakarta text-[11px] uppercase tracking-[0.25em] text-[var(--color-botanico)] block mb-2">
-              Escena VIII · Información Esencial
+              Información y Horario
             </span>
             <h2 className="font-playfair text-[32px] sm:text-[40px] text-[var(--color-crema)] font-normal leading-tight">
               {NEGOCIO.nombre}

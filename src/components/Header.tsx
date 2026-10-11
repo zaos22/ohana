@@ -4,12 +4,14 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Menu, X, MessageCircle } from 'lucide-react';
 import { FOTOS } from '../../data/fotos';
+import { LanguageSelector } from './LanguageSelector';
 
 interface HeaderProps {
   escenaActual: number; // 1 a 8
+  onJumpToProgress?: (progress: number) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
+export const Header: React.FC<HeaderProps> = ({ escenaActual, onJumpToProgress }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP;
@@ -22,8 +24,32 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
   const escenaStr = String(Math.min(8, Math.max(1, escenaActual))).padStart(2, '0');
   const progresoPorcentaje = (Math.min(8, Math.max(1, escenaActual)) / 8) * 100;
 
+  const escenaProgresoMap: Record<string, number> = {
+    'escena-1': 0.0,
+    'escena-2': 0.12,
+    'escena-3': 0.22,
+    'escena-4': 0.35,
+    'escena-5': 0.58,
+    'escena-6': 0.76,
+    'escena-7': 0.94
+  };
+
   const scrollToSection = (id: string) => {
     setDrawerOpen(false);
+
+    if (id === 'escena-8') {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+
+    if (onJumpToProgress && escenaProgresoMap[id] !== undefined) {
+      onJumpToProgress(escenaProgresoMap[id]);
+      return;
+    }
+
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -40,10 +66,10 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
           {/* Logo y Marca */}
           <button
             onClick={() => scrollToSection('escena-1')}
-            className="flex items-center gap-4 shrink-0 text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-zafiro)] rounded-lg p-1"
+            className="flex items-center gap-2.5 sm:gap-4 shrink-0 text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-zafiro)] rounded-lg p-1"
             aria-label="Ir al inicio de Ohana Cafetería"
           >
-            <div className="relative w-9 h-9 rounded-full overflow-hidden border border-white/10 shadow-[0_0_12px_rgba(47,62,158,0.3)]">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-white/10 shadow-[0_0_12px_rgba(47,62,158,0.3)] shrink-0">
               <Image
                 src={FOTOS.logo.src}
                 alt={FOTOS.logo.alt}
@@ -54,10 +80,10 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-playfair text-[22px] text-[var(--color-crema)] font-medium tracking-wide leading-none">
+              <span className="font-playfair text-[20px] sm:text-[22px] text-[var(--color-crema)] font-medium tracking-wide leading-none">
                 Ohana
               </span>
-              <span className="font-jakarta text-[10px] uppercase text-[var(--text-subtle)] tracking-widest mt-1">
+              <span className="font-jakarta text-[9px] sm:text-[10px] uppercase text-[var(--text-subtle)] tracking-widest mt-0.5 sm:mt-1 hidden xs:block">
                 Cafetería · Benicarló
               </span>
             </div>
@@ -98,10 +124,13 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
           </div>
 
           {/* Navegación y Acciones */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            {/* Selector de idiomas Google Translate con banderas */}
+            <LanguageSelector />
+
             <button
               onClick={() => scrollToSection('escena-8')}
-              className="hidden sm:inline-flex font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase text-[var(--color-crema-dim)] hover:text-white px-2.5 sm:px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
+              className="hidden lg:inline-flex font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase text-[var(--color-crema-dim)] hover:text-white px-2.5 sm:px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
             >
               Horario & Info
             </button>
@@ -112,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase bg-[var(--color-zafiro)] hover:bg-[var(--color-zafiro-hover)] text-[var(--color-crema)] px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all shadow-[0_4px_20px_-2px_rgba(47,62,158,0.4)] flex items-center gap-1.5 sm:gap-2 hover:scale-[1.02]"
+                className="hidden sm:inline-flex font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase bg-[var(--color-zafiro)] hover:bg-[var(--color-zafiro-hover)] text-[var(--color-crema)] px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all shadow-[0_4px_20px_-2px_rgba(47,62,158,0.4)] items-center gap-1.5 sm:gap-2 hover:scale-[1.02]"
                 id="header-reservar-btn"
               >
                 <MessageCircle size={14} className="shrink-0" />
@@ -121,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
             ) : (
               <button
                 disabled
-                className="font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase bg-white/10 text-white/40 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg cursor-not-allowed flex items-center gap-1.5 sm:gap-2"
+                className="hidden sm:inline-flex font-jakarta text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase bg-white/10 text-white/40 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg cursor-not-allowed items-center gap-1.5 sm:gap-2"
                 title="Número de WhatsApp no configurado"
                 id="header-reservar-btn-disabled"
               >
@@ -130,13 +159,14 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual }) => {
               </button>
             )}
 
-            {/* Botón de Menú Móvil */}
+            {/* Botón de Menú Móvil Hamburguesa (Siempre destacado y accesible en pantallas táctiles) */}
             <button
+              type="button"
               onClick={() => setDrawerOpen(true)}
-              className="md:hidden p-1.5 sm:p-2 text-[var(--color-crema)] hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+              className="md:hidden flex items-center justify-center p-2 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/25 text-[var(--color-crema)] transition-colors cursor-pointer border border-white/15"
               aria-label="Abrir menú de navegación"
             >
-              <Menu size={22} />
+              <Menu size={22} className="shrink-0 text-[var(--color-crema)]" />
             </button>
           </div>
         </div>

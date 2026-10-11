@@ -84,14 +84,6 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
           {/* Sutil viñeta para legibilidad sin oscurecer la foto de portada */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/40 pointer-events-none -z-10" />
 
-          <div className="mb-8 flex items-center gap-3">
-            <span className="w-8 h-[1px] bg-white/20" />
-            <span className="font-jakarta text-[11px] uppercase tracking-[0.25em] text-[var(--color-crema-dim)]">
-              {TEXTOS.escena1.badge}
-            </span>
-            <span className="w-8 h-[1px] bg-white/20" />
-          </div>
-
           <div className="max-w-4xl mx-auto flex flex-col items-center space-y-2">
             <h1 className="font-playfair text-[38px] sm:text-[54px] lg:text-[68px] text-[var(--color-crema)] font-semibold tracking-tight leading-[1.08]">
               {TEXTOS.escena1.linea1}
@@ -129,9 +121,6 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
           <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none -z-10" />
 
           <div className="relative z-10 flex flex-col items-center max-w-xl mx-auto space-y-4">
-            <span className="font-jakarta text-[11px] uppercase tracking-[0.22em] text-[var(--text-subtle)]">
-              {TEXTOS.escena2.badge}
-            </span>
             <h2 className="font-playfair italic text-[24px] sm:text-[32px] text-[var(--color-crema)] tracking-wide font-light">
               {TEXTOS.escena2.titulo}
             </h2>
@@ -155,14 +144,11 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
             opacity: opacidad5,
             transform: `translateY(${(1 - opacidad5) * 20}px)`
           }}
-          aria-label="Escena V: Vórtice"
+          aria-label="Vórtice"
         >
           {/* Halo sutil de fondo */}
           <div className="absolute w-96 h-96 rounded-full bg-[var(--color-zafiro)]/15 blur-[120px] pointer-events-none -z-10" />
           <div className="bg-black/60 backdrop-blur-sm p-8 sm:p-12 rounded-3xl border border-white/5 max-w-2xl mx-auto flex flex-col items-center space-y-4 shadow-2xl">
-            <span className="font-jakarta text-[11px] uppercase tracking-[0.25em] text-[var(--color-botanico)]">
-              {TEXTOS.escena5.badge}
-            </span>
             <h3 className="font-playfair text-[26px] sm:text-[36px] text-[var(--color-crema)] font-medium leading-tight">
               {TEXTOS.escena5.linea1}
             </h3>
@@ -185,15 +171,12 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
             opacity: opacidad6,
             transform: `translateY(${(1 - opacidad6) * 20}px)`
           }}
-          aria-label="Escena VI: El Clímax"
+          aria-label="El Clímax"
         >
           <div className="bg-black/70 backdrop-blur-md p-8 sm:p-14 rounded-3xl border border-white/10 max-w-2xl mx-auto flex flex-col items-center space-y-5 shadow-2xl">
             <div className="w-14 h-14 rounded-full bg-[var(--color-zafiro)] flex items-center justify-center shadow-[0_0_36px_rgba(47,62,158,0.7)] text-[var(--color-crema)]">
               <Sparkles size={26} />
             </div>
-            <span className="font-jakarta text-[11px] uppercase tracking-[0.25em] text-[var(--color-crema-dim)]">
-              {TEXTOS.escena6.badge}
-            </span>
             <h2 className="font-playfair text-[34px] sm:text-[46px] lg:text-[54px] text-[var(--color-crema)] font-semibold leading-tight">
               {TEXTOS.escena6.linea1}
             </h2>
@@ -220,15 +203,12 @@ export const TextScenesLayer: React.FC<TextScenesLayerProps> = ({ progreso, onSc
             opacity: opacidad7,
             transform: `translateY(${(1 - opacidad7) * 30}px)`
           }}
-          aria-label="Escena VII: Identidad Ohana"
+          aria-label="Identidad Ohana"
         >
           {/* Degradado oscuro detrás para contraste óptimo */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] pointer-events-none -z-10" />
 
           <div className="relative z-10 flex flex-col items-center max-w-3xl mx-auto space-y-6">
-            <span className="font-jakarta text-[11px] uppercase tracking-[0.25em] text-[var(--color-botanico)]">
-              {TEXTOS.escena7.badge}
-            </span>
 
             {/* Sello circular oficial con gema de zafiro */}
             <div className="relative group my-2">

@@ -232,7 +232,10 @@ export default function HomePage() {
   return (
     <main className="relative bg-black text-[var(--color-crema)] min-h-screen">
       {/* Cabecera Fija */}
-      <Header escenaActual={escenaActual} />
+      <Header
+        escenaActual={escenaActual}
+        onJumpToProgress={handleJumpToProgress}
+      />
 
       {/* Contenedor del Hero Animado (Sección Pinneada) */}
       <div ref={containerRef} className="relative w-full">
