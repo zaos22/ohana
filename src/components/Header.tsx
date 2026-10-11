@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Menu, X, MessageCircle } from 'lucide-react';
 import { FOTOS } from '../../data/fotos';
@@ -13,6 +13,54 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ escenaActual, onJumpToProgress }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  // Manejo de foco accesible y tecla Escape para el modal drawer
+  useEffect(() => {
+    if (!drawerOpen) return;
+
+    // Poner el foco en el botón de cerrar al abrir
+    const timer = setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 50);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setDrawerOpen(false);
+        return;
+      }
+
+      // Trampa de foco (Focus Trap)
+      if (e.key === 'Tab' && drawerRef.current) {
+        const focusables = drawerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [drawerOpen]);
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP;
   const whatsappUrl = whatsappNumber
@@ -173,57 +221,58 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual, onJumpToProgress }
         </div>
       </header>
 
-      {/* Drawer Lateral */}
-      <div
-        className={`fixed inset-0 z-50 transition-opacity duration-300 ${
-          drawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        aria-hidden={!drawerOpen}
-      >
-        {/* Backdrop */}
+      {/* Drawer Lateral Accesible */}
+      {drawerOpen && (
         <div
-          className="absolute inset-0 bg-black/75 backdrop-blur-sm"
-          onClick={() => setDrawerOpen(false)}
-        />
-
-        {/* Panel lateral */}
-        <aside
-          className={`absolute top-0 right-0 bottom-0 w-full max-w-sm bg-[var(--color-espresso)] border-l border-white/10 p-6 flex flex-col justify-between transform transition-transform duration-300 ease-out ${
-            drawerOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menú de navegación lateral"
+          className="fixed inset-0 z-50 transition-opacity duration-300 opacity-100 pointer-events-auto"
+          role="presentation"
         >
-          <div>
-            <div className="flex items-center justify-between pb-6 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/10">
-                  <Image
-                    src={FOTOS.logo.src}
-                    alt={FOTOS.logo.alt}
-                    fill
-                    sizes="32px"
-                    className="object-contain"
-                  />
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+            onClick={() => setDrawerOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Panel lateral con trampa de foco y aria-modal */}
+          <aside
+            ref={drawerRef}
+            className="absolute top-0 right-0 bottom-0 w-full max-w-sm bg-[var(--color-espresso)] border-l border-white/10 p-6 flex flex-col justify-between transform transition-transform duration-300 ease-out translate-x-0 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menú de navegación lateral"
+          >
+            <div>
+              <div className="flex items-center justify-between pb-6 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/10">
+                    <Image
+                      src={FOTOS.logo.src}
+                      alt={FOTOS.logo.alt}
+                      fill
+                      sizes="32px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <div>
+                    <span className="font-playfair text-[20px] text-[var(--color-crema)] block leading-none">
+                      Ohana
+                    </span>
+                    <span className="font-jakarta text-[9px] uppercase text-[var(--text-subtle)] tracking-wider">
+                      Benicarló
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-playfair text-[20px] text-[var(--color-crema)] block leading-none">
-                    Ohana
-                  </span>
-                  <span className="font-jakarta text-[9px] uppercase text-[var(--text-subtle)] tracking-wider">
-                    Benicarló
-                  </span>
-                </div>
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={() => setDrawerOpen(false)}
+                  className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  aria-label="Cerrar menú"
+                >
+                  <X size={20} />
+                </button>
               </div>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                aria-label="Cerrar menú"
-              >
-                <X size={20} />
-              </button>
-            </div>
 
             <nav className="mt-8 space-y-2">
               <span className="font-jakarta text-[10px] uppercase tracking-[0.2em] text-[var(--text-subtle)] block mb-3">
@@ -272,6 +321,7 @@ export const Header: React.FC<HeaderProps> = ({ escenaActual, onJumpToProgress }
           </div>
         </aside>
       </div>
+      )}
     </>
   );
 };

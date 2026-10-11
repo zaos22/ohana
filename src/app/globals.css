@@ -7,25 +7,25 @@
   --color-espresso-dark: #17110E;
   --color-espresso-surface: #241B16;
   --color-crema: #F3EBDD;
-  --color-crema-muted: #D2C4BD;
-  --color-crema-dim: #CDC6B8;
+  --color-crema-muted: #D8CCC4;
+  --color-crema-dim: #D4CDC2;
   --color-zafiro: #2F3E9E;
   --color-zafiro-hover: #1E2B7B;
   --color-zafiro-glow: rgba(47, 62, 158, 0.45);
-  --color-botanico: #7C8B6F;
-  --color-botanico-light: #A3B394;
+  --color-botanico: #8A9D7B;
+  --color-botanico-light: #B4C4A5;
   --color-botanico-bg: rgba(124, 139, 111, 0.15);
 
   /* Variables semánticas */
   --bg-primary: #000000;
   --bg-espresso: #1E1713;
   --text-primary: #F3EBDD;
-  --text-muted: #CDC6B8;
-  --text-subtle: #9A8E89;
+  --text-muted: #D4CDC2;
+  --text-subtle: #B8ADA7;
   --accent-sapphire: #2F3E9E;
-  --accent-sage: #7C8B6F;
-  --border-subtle: rgba(243, 235, 221, 0.1);
-  --border-sage: rgba(124, 139, 111, 0.25);
+  --accent-sage: #8A9D7B;
+  --border-subtle: rgba(243, 235, 221, 0.15);
+  --border-sage: rgba(138, 157, 123, 0.3);
 
   /* Spacing Grid (8px base) */
   --space-1: 8px;
