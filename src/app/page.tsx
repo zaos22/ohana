@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { Header } from '@/components/Header';
@@ -9,6 +9,8 @@ import { PolaroidsLayer } from '@/components/PolaroidsLayer';
 import { TextScenesLayer } from '@/components/TextScenesLayer';
 import { InfoSection } from '@/components/InfoSection';
 import { Footer } from '@/components/Footer';
+import { Preloader } from '@/components/Preloader';
+import { TOTAL_FRAMES } from '../../data/hero';
 
 // Registrar plugin de ScrollTrigger
 if (typeof window !== 'undefined') {
@@ -20,11 +22,58 @@ export default function HomePage() {
   const [escenaActual, setEscenaActual] = useState<number>(1);
   const [isReducedMotion, setIsReducedMotion] = useState<boolean>(false);
 
+  // Estado de precarga de los 109 fotogramas del Hero
+  const [loadedFrames, setLoadedFrames] = useState<number>(0);
+  const [isFramesReady, setIsFramesReady] = useState<boolean>(false);
+  const [showPreloader, setShowPreloader] = useState<boolean>(true);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const pinSectionRef = useRef<HTMLDivElement | null>(null);
   const infoSectionRef = useRef<HTMLDivElement | null>(null);
   const lastProgressRef = useRef<number>(-1);
   const lastEscenaRef = useRef<number>(1);
+
+  const handleLoadProgress = useCallback((loaded: number) => {
+    setLoadedFrames(loaded);
+  }, []);
+
+  const handleLoadComplete = useCallback(() => {
+    setIsFramesReady(true);
+  }, []);
+
+  const handlePreloaderExit = useCallback(() => {
+    setShowPreloader(false);
+    if (typeof window !== 'undefined') {
+      document.body.style.overflow = '';
+      window.scrollTo(0, 0);
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
+    }
+  }, []);
+
+  // Bloquear scroll mientras la pantalla de carga editorial está activa y añadir salvavidas de tiempo máximo
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (showPreloader && !isReducedMotion) {
+      document.body.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
+
+      // Salvavidas por si la red es extremadamente lenta (máximo 15s)
+      const safetyTimer = setTimeout(() => {
+        setLoadedFrames(TOTAL_FRAMES);
+        setIsFramesReady(true);
+      }, 15000);
+
+      return () => {
+        clearTimeout(safetyTimer);
+        document.body.style.overflow = '';
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [showPreloader, isReducedMotion]);
 
   useEffect(() => {
     // Asegurar que al hacer F5 / recargar la página siempre comience en el inicio (0, 0)
@@ -231,6 +280,16 @@ export default function HomePage() {
 
   return (
     <main className="relative bg-black text-[var(--color-crema)] min-h-screen">
+      {/* Pantalla de carga editorial minimalista (precarga de los 109 fotogramas) */}
+      {showPreloader && (
+        <Preloader
+          loadedFrames={loadedFrames}
+          totalFrames={TOTAL_FRAMES}
+          isComplete={isFramesReady}
+          onExitComplete={handlePreloaderExit}
+        />
+      )}
+
       {/* Cabecera Fija */}
       <Header
         escenaActual={escenaActual}
@@ -244,7 +303,11 @@ export default function HomePage() {
           className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col items-center justify-center"
         >
           {/* Capa 1: Canvas de fotogramas (fondo exacto) */}
-          <HeroCanvas progreso={heroProgreso} />
+          <HeroCanvas
+            progreso={heroProgreso}
+            onLoadProgress={handleLoadProgress}
+            onLoadComplete={handleLoadComplete}
+          />
 
           {/* Capa 2: Polaroids con Zoom In y Zoom Atrás secuencial (Escena III y IV) */}
           <PolaroidsLayer progreso={heroProgreso} />

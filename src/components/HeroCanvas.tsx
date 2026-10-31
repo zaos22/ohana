@@ -6,23 +6,39 @@ import { TOTAL_FRAMES, mapearProgresoAFotograma } from '../../data/hero';
 interface HeroCanvasProps {
   progreso: number; // 0.0 a 1.0
   onFrameChange?: (frameIndex: number) => void;
+  onLoadProgress?: (loaded: number, total: number) => void;
+  onLoadComplete?: () => void;
 }
 
-export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange }) => {
+export const HeroCanvas: React.FC<HeroCanvasProps> = ({
+  progreso,
+  onFrameChange,
+  onLoadProgress,
+  onLoadComplete
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isVertical, setIsVertical] = useState<boolean>(false);
 
-  // Sliding window memory cache: frameNum -> ImageBitmap
+  // Cache de Blobs en memoria para los 109 fotogramas (~15-25 MB total) para evitar re-descargas de red
+  const blobCache = useRef<Map<string, Blob>>(new Map());
+  // Sliding window memory cache de ImageBitmaps decodificados en GPU: frameNum -> ImageBitmap
   const bitmapCache = useRef<Map<number, ImageBitmap>>(new Map());
   const loadingPromises = useRef<Map<number, Promise<ImageBitmap | null>>>(new Map());
   const lastRenderedFrame = useRef<number>(-1);
   const isReducedMotion = useRef<boolean>(false);
+  const initialFolderRef = useRef<'desktop' | 'mobile' | null>(null);
+
+  const onLoadProgressRef = useRef(onLoadProgress);
+  onLoadProgressRef.current = onLoadProgress;
+  const onLoadCompleteRef = useRef(onLoadComplete);
+  onLoadCompleteRef.current = onLoadComplete;
 
   // Check orientation and screen aspect ratio
   const checkOrientation = useCallback(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return false;
     const vertical = window.innerHeight > window.innerWidth;
     setIsVertical(vertical);
+    return vertical;
   }, []);
 
   useEffect(() => {
@@ -45,6 +61,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
     window.addEventListener('orientationchange', handleResize);
 
     const currentCache = bitmapCache.current;
+    const currentBlobs = blobCache.current;
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
@@ -57,6 +74,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
         } catch {}
       });
       currentCache.clear();
+      currentBlobs.clear();
     };
   }, [checkOrientation]);
 
@@ -72,24 +90,26 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
       }
 
       const numStr = String(frameNum).padStart(4, '0');
-      // Forzar recarga limpia del primer fotograma para evitar cache persistente del navegador
-      const cacheBust = frameNum === 1 ? `?v=portada_${Date.now().toString().slice(0, 8)}` : '';
-      const url = `/frames/${folder}/frame_${numStr}.webp${cacheBust}`;
+      const blobKey = `${folder}_${frameNum}`;
+      const url = `/frames/${folder}/frame_${numStr}.webp`;
 
       const promise = (async () => {
         try {
-          const res = await fetch(url, { cache: frameNum === 1 ? 'no-cache' : 'force-cache' });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const blob = await res.blob();
-          const bitmap = await createImageBitmap(blob);
+          let blob = blobCache.current.get(blobKey);
+          if (!blob) {
+            const res = await fetch(url, { cache: 'force-cache' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            blob = await res.blob();
+            blobCache.current.set(blobKey, blob);
+          }
 
+          const bitmap = await createImageBitmap(blob);
           bitmapCache.current.set(frameNum, bitmap);
 
-          // Clean up far frames (keep ~40 frames in sliding window)
-          const MAX_CACHE_SIZE = 40;
+          // En escritorio mantenemos los 109 frames decodificados; en móvil una ventana amplia de 55 frames
+          const MAX_CACHE_SIZE = folder === 'desktop' ? TOTAL_FRAMES : 55;
           if (bitmapCache.current.size > MAX_CACHE_SIZE) {
-            const keys = Array.from(bitmapCache.current.keys());
-            // Sort by distance from current requested frame
+            const keys = Array.from(bitmapCache.current.keys()).filter((k) => k !== 1);
             keys.sort((a, b) => Math.abs(b - frameNum) - Math.abs(a - frameNum));
             while (bitmapCache.current.size > MAX_CACHE_SIZE && keys.length > 0) {
               const farthest = keys.shift()!;
@@ -121,35 +141,24 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
   // Background preloader for upcoming frames in scroll direction
   const preloadNeighborFrames = useCallback(
     (currentFrame: number, folder: 'desktop' | 'mobile', direction: number = 1) => {
-      // Preload 10 frames ahead, 4 behind
-      const aheadCount = 10;
+      const aheadCount = 12;
       const behindCount = 4;
 
-      // Check Save-Data or slow connection
-      const nav = navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } };
-      const isSlow = nav.connection?.saveData || nav.connection?.effectiveType?.includes('2g');
-      const step = isSlow ? 2 : 1;
-
-      for (let i = 1; i <= aheadCount; i += step) {
+      for (let i = 1; i <= aheadCount; i++) {
         const next = currentFrame + i * (direction >= 0 ? 1 : -1);
         if (next >= 1 && next <= TOTAL_FRAMES && !bitmapCache.current.has(next)) {
-          // Warm up HTTP cache with image element or fetch without decoding immediately
-          const numStr = String(next).padStart(4, '0');
-          const img = new Image();
-          img.src = `/frames/${folder}/frame_${numStr}.webp`;
+          loadFrameBitmap(next, folder);
         }
       }
 
-      for (let i = 1; i <= behindCount; i += step) {
+      for (let i = 1; i <= behindCount; i++) {
         const prev = currentFrame - i * (direction >= 0 ? 1 : -1);
         if (prev >= 1 && prev <= TOTAL_FRAMES && !bitmapCache.current.has(prev)) {
-          const numStr = String(prev).padStart(4, '0');
-          const img = new Image();
-          img.src = `/frames/${folder}/frame_${numStr}.webp`;
+          loadFrameBitmap(prev, folder);
         }
       }
     },
-    []
+    [loadFrameBitmap]
   );
 
   const progresoRef = useRef<number>(progreso);
@@ -157,13 +166,13 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
 
   // Draw current frame on canvas with 'cover' fitting
   const renderFrame = useCallback(
-    async (frameNum: number) => {
+    async (frameNum: number, explicitFolder?: 'desktop' | 'mobile') => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext('2d', { alpha: false });
       if (!ctx) return;
 
-      const folder: 'desktop' | 'mobile' = isVertical ? 'mobile' : 'desktop';
+      const folder: 'desktop' | 'mobile' = explicitFolder ?? (isVertical ? 'mobile' : 'desktop');
 
       let bitmap = bitmapCache.current.get(frameNum);
       if (!bitmap) {
@@ -202,7 +211,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
       if (p > 0.001 && p < 0.025 && frameNum > 1) {
         const frame1Bitmap = bitmapCache.current.get(1);
         if (frame1Bitmap) {
-          const portadaAlpha = Math.max(0, 1 - (p / 0.025));
+          const portadaAlpha = Math.max(0, 1 - p / 0.025);
           ctx.drawImage(bitmap, offsetX, offsetY, scaledW, scaledH);
 
           ctx.save();
@@ -230,14 +239,108 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
     [isVertical, loadFrameBitmap, onFrameChange]
   );
 
-  // Initial load of first frame
+  // Precarga completa de los 109 fotogramas del Hero al iniciar (ejecución única al montar)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const vertical = window.innerHeight > window.innerWidth;
+    const folder: 'desktop' | 'mobile' = vertical ? 'mobile' : 'desktop';
+    initialFolderRef.current = folder;
+
+    let cancelled = false;
+    let loadedCount = 0;
+
+    const notifyProgress = () => {
+      if (cancelled) return;
+      loadedCount += 1;
+      if (onLoadProgressRef.current) {
+        onLoadProgressRef.current(loadedCount, TOTAL_FRAMES);
+      }
+      if (loadedCount >= TOTAL_FRAMES && onLoadCompleteRef.current) {
+        onLoadCompleteRef.current();
+      }
+    };
+
+    const preloadSingleFrame = async (frameNum: number) => {
+      const numStr = String(frameNum).padStart(4, '0');
+      const blobKey = `${folder}_${frameNum}`;
+      const url = `/frames/${folder}/frame_${numStr}.webp`;
+
+      try {
+        let blob = blobCache.current.get(blobKey);
+        if (!blob) {
+          const res = await fetch(url, { cache: 'force-cache' });
+          if (res.ok) {
+            blob = await res.blob();
+            blobCache.current.set(blobKey, blob);
+          }
+        }
+
+        // Decodificar en ImageBitmap todos en desktop o los primeros 40 en móvil para respuesta inmediata
+        if (blob && (folder === 'desktop' || frameNum <= 40)) {
+          if (!bitmapCache.current.has(frameNum)) {
+            const bitmap = await createImageBitmap(blob);
+            bitmapCache.current.set(frameNum, bitmap);
+          }
+        }
+
+        if (frameNum === 1 && !cancelled) {
+          renderFrame(1, folder);
+        }
+      } catch (err) {
+        console.warn(`Preload warning on frame ${frameNum}:`, err);
+      } finally {
+        notifyProgress();
+      }
+    };
+
+    const runFullPreload = async () => {
+      // Cargar primero el fotograma 1 para pintar el lienzo de inmediato
+      await preloadSingleFrame(1);
+
+      // Cola concurrente (10 workers en paralelo) para los fotogramas 2..109
+      const queue: number[] = [];
+      for (let i = 2; i <= TOTAL_FRAMES; i++) {
+        queue.push(i);
+      }
+
+      const CONCURRENCY = 10;
+      const workers = Array.from({ length: CONCURRENCY }, async () => {
+        while (queue.length > 0 && !cancelled) {
+          const nextFrame = queue.shift();
+          if (nextFrame !== undefined) {
+            await preloadSingleFrame(nextFrame);
+          }
+        }
+      });
+
+      await Promise.all(workers);
+    };
+
+    runFullPreload();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Si cambia la orientación tras el montaje inicial, limpiar caché de bitmaps y re-renderizar
   useEffect(() => {
     const folder: 'desktop' | 'mobile' = isVertical ? 'mobile' : 'desktop';
-    loadFrameBitmap(1, folder).then(() => {
-      renderFrame(1);
-      preloadNeighborFrames(1, folder, 1);
-    });
-  }, [isVertical, loadFrameBitmap, preloadNeighborFrames, renderFrame]);
+    if (initialFolderRef.current && initialFolderRef.current !== folder) {
+      initialFolderRef.current = folder;
+      bitmapCache.current.forEach((bm) => {
+        try {
+          bm.close();
+        } catch {}
+      });
+      bitmapCache.current.clear();
+      const currentTarget = mapearProgresoAFotograma(progresoRef.current);
+      loadFrameBitmap(currentTarget, folder).then(() => {
+        renderFrame(currentTarget, folder);
+      });
+    }
+  }, [isVertical, loadFrameBitmap, renderFrame]);
 
   // Reactive scroll update
   useEffect(() => {
@@ -246,7 +349,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({ progreso, onFrameChange 
 
     if (targetFrame !== lastRenderedFrame.current || progreso < 0.03) {
       const direction = targetFrame > lastRenderedFrame.current ? 1 : -1;
-      renderFrame(targetFrame);
+      renderFrame(targetFrame, folder);
       preloadNeighborFrames(targetFrame, folder, direction);
     }
   }, [progreso, isVertical, renderFrame, preloadNeighborFrames]);
